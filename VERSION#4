@@ -1,0 +1,130 @@
+# parking_spot_manager.py
+
+class ParkingSpot:
+    def __init__(self, name, city, district, ptype, longitude, latitude):
+        self.__item = {
+            'name': name,
+            'city': city,
+            'district': district,
+            'ptype': ptype,
+            'longitude': longitude,
+            'latitude': latitude
+        }
+    
+    def get(self, keyword='name'):
+        return self.__item[keyword]
+    
+    def __str__(self):
+        item = self.__item
+        s = f"[{item['name']}({item['ptype']})] "
+        s += f"{item['city']} {item['district']} "
+        s += f"(lat:{item['latitude']}, long:{item['longitude']})"
+        return s
+
+
+def str_list_to_class_list(str_list):
+    spots = []
+    for data in str_list:
+        spot_data = data.split(',')
+        name = spot_data[1]
+        city = spot_data[2]
+        district = spot_data[3]
+        ptype = spot_data[4]
+        longitude = float(spot_data[5])
+        latitude = float(spot_data[6])
+        spot = ParkingSpot(name, city, district, ptype, longitude, latitude)
+        spots.append(spot)
+    return spots
+
+
+def print_spots(spots):
+    print(f"---print elements({len(spots)})---")
+    for spot in spots:
+        print(spot)
+
+
+def filter_by_name(spots, name):
+    return [spot for spot in spots if name in spot.get('name')]
+
+
+def filter_by_city(spots, city):
+    return [spot for spot in spots if city in spot.get('city')]
+
+
+def filter_by_district(spots, district):
+    return [spot for spot in spots if district in spot.get('district')]
+
+
+def filter_by_ptype(spots, ptype):
+    return [spot for spot in spots if ptype in spot.get('ptype')]
+
+
+def filter_by_location(spots, locations):
+    min_lat, max_lat, min_long, max_long = locations
+    return [spot for spot in spots if min_lat < spot.get('latitude') < max_lat and min_long < spot.get('longitude') < max_long]
+
+
+def sort_by_keyword(spots, keyword):
+    return sorted(spots, key=lambda spot: spot.get(keyword))
+
+
+# menu_selector.py
+
+import file_manager
+import parking_spot_manager
+
+def start_process(path):
+    str_list = file_manager.read_file(path)
+    spots = parking_spot_manager.str_list_to_class_list(str_list)
+    
+    while True:
+        print("1. Print")
+        print("2. Filter")
+        print("3. Sort")
+        print("4. Exit")
+        choice = input("Select an option: ")
+        
+        if choice == '1':
+            parking_spot_manager.print_spots(spots)
+        elif choice == '2':
+            print("Filter Options:")
+            print("1. Name")
+            print("2. City")
+            print("3. District")
+            print("4. Parking Type")
+            print("5. Location")
+            filter_choice = input("Select an option for filtering: ")
+            
+            if filter_choice == '1':
+                keyword = input("Enter a name to filter: ")
+                spots = parking_spot_manager.filter_by_name(spots, keyword)
+            elif filter_choice == '2':
+                keyword = input("Enter a city to filter: ")
+                spots = parking_spot_manager.filter_by_city(spots, keyword)
+            elif filter_choice == '3':
+                keyword = input("Enter a district to filter: ")
+                spots = parking_spot_manager.filter_by_district(spots, keyword)
+            elif filter_choice == '4':
+                keyword = input("Enter a parking type to filter: ")
+                spots = parking_spot_manager.filter_by_ptype(spots, keyword)
+            elif filter_choice == '5':
+                min_lat = float(input("Enter the minimum latitude: "))
+                max_lat = float(input("Enter the maximum latitude: "))
+                min_long = float(input("Enter the minimum longitude: "))
+                max_long = float(input("Enter the maximum longitude: "))
+                locations = (min_lat, max_lat, min_long, max_long)
+                spots = parking_spot_manager.filter_by_location(spots, locations)
+            else:
+                print("Invalid choice")
+        elif choice == '3':
+            print("Sort Options:")
+            print("Available keywords: name, city, district, ptype, longitude, latitude")
+            keyword = input("Enter a keyword to sort: ")
+            spots = parking_spot_manager.sort_by_keyword(spots, keyword)
+        elif choice == '4':
+            print("Exit")
+            break
+
+
+# Call the start_process function to begin the program
+start_process("./input/free_parking_spot_seoul.csv")
