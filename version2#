@@ -1,0 +1,67 @@
+# parking_spot_manager.py
+
+class ParkingSpot:
+    def __init__(self, name, city, district, ptype, longitude, latitude):
+        self.__item = {
+            'name': name,
+            'city': city,
+            'district': district,
+            'ptype': ptype,
+            'longitude': longitude,
+            'latitude': latitude
+        }
+    
+    def get(self, keyword='name'):
+        return self.__item[keyword]
+    
+    def __str__(self):
+        item = self.__item
+        s = f"[{item['name']}({item['ptype']})] "
+        s += f"{item['city']} {item['district']} "
+        s += f"(lat:{item['latitude']}, long:{item['longitude']})"
+        return s
+
+
+def str_list_to_class_list(str_list):
+    spots = []
+    for data in str_list:
+        spot_data = data.split(',')
+        name = spot_data[1]
+        city = spot_data[2]
+        district = spot_data[3]
+        ptype = spot_data[4]
+        longitude = float(spot_data[5])
+        latitude = float(spot_data[6])
+        spot = ParkingSpot(name, city, district, ptype, longitude, latitude)
+        spots.append(spot)
+    return spots
+
+
+def print_spots(spots):
+    print(f"---print elements({len(spots)})---")
+    for spot in spots:
+        print(spot)
+
+
+# menu_selector.py
+
+import file_manager
+import parking_spot_manager
+
+def start_process(path):
+    str_list = file_manager.read_file(path)
+    spots = parking_spot_manager.str_list_to_class_list(str_list)
+    
+    while True:
+        print("1. Print")
+        print("2. Exit")
+        choice = input("Select an option: ")
+        
+        if choice == '1':
+            parking_spot_manager.print_spots(spots)
+        elif choice == '2':
+            print("Exit")
+            break
+
+# 调用 start_process 函数开始处理程序
+start_process("./input/free_parking_spot_seoul.csv")
